@@ -1,0 +1,146 @@
+#include <QtCore/QDebug>
+#include <QMessageBox>
+#include <QtConcurrentRun>
+#include <QMovie>
+#include <QDir>
+#include <QScrollBar>
+
+#include "tab_page.h"
+
+TabPage::TabPage(const QString& fullpath, QWidget* parent):
+    QWidget(parent), displayScaleFactor(1.0), fullpath(fullpath)
+{
+    ui.setupUi(this);
+    QMovie* loadingMovie = new QMovie(":/image/images/loading.gif");
+    ui.label->setMovie(loadingMovie);
+    loadingMovie->start();
+
+    ui.label->setBackgroundRole(QPalette::Base);
+    ui.scrollArea->setBackgroundRole(QPalette::Dark);
+
+    connect(&loadWatcher, SIGNAL(finished()), this, SLOT(displayImage()));
+    connect(this, SIGNAL(loadFinish()), this, SLOT(displayImage()));
+}         
+
+void TabPage::displayScale(double scale)
+{
+    //ui.scrollArea->setWidgetResizable(false);
+    Q_ASSERT(ui.label->pixmap() != nullptr);
+    displayScaleFactor *= scale;
+    auto scaledSize = displayScaleFactor * ui.label->pixmap()->size();
+    //ui.scrollArea->resize(scaledSize);
+    ui.label->resize(scaledSize);
+    ui.label->setMinimumSize(scaledSize);
+
+    adjustScrollBar(ui.scrollArea->horizontalScrollBar(), scale);
+    adjustScrollBar(ui.scrollArea->verticalScrollBar(), scale);
+
+    qDebug() << "Scaled" << displayScaleFactor;
+}
+
+void TabPage::adjustScrollBar(QScrollBar* scrollbar, double scale)
+{
+    scrollbar->setValue(scale * scrollbar->value()
+            + ((scale-1) * scrollbar->pageStep()/2));
+}
+
+void TabPage::zoomIn()
+{
+    displayScale(1.25);
+}
+
+void TabPage::zoomOut()
+{
+    displayScale(0.8);
+}
+
+int TabPage::getHeight() const
+{
+    return image.height();
+}
+
+int TabPage::getWidth() const
+{
+    return image.width();
+}
+
+void TabPage::save(int height, int width,
+        bool setLongest, int longest)
+{
+    if (image.isNull()) {
+        doLoadImage(fullpath);
+        emit loadFinish();
+    }
+    QImage scaledImg;
+    if (setLongest) {
+        scaledImg = image.height() > image.width() ?
+            image.scaledToHeight(longest, Qt::SmoothTransformation) :
+            image.scaledToWidth(longest, Qt::SmoothTransformation);
+    } else {
+        scaledImg = image.scaled(width, height, Qt::IgnoreAspectRatio,
+                Qt::SmoothTransformation);
+    }
+    QDir dir("/tmp");
+    auto path = dir.absoluteFilePath(QFileInfo(fullpath).baseName()+".jpg");
+    scaledImg.save(path, 0, 100);
+    qDebug() << "Save done" << path;
+}
+
+bool TabPage::isLoaded(const QString& fullpath) const
+{
+    return !image.isNull() && this->fullpath == fullpath;
+}
+
+void TabPage::loadImage(const QString& fullpath)
+{
+    auto future = QtConcurrent::run(this,
+            &TabPage::doLoadImage, fullpath);
+    loadWatcher.setFuture(future);
+}
+
+void TabPage::loadImage()
+{
+    if (isLoaded(fullpath)) {
+        return;
+    }
+    loadImage(fullpath);
+}
+
+void TabPage::doLoadImage(const QString& fullpath)
+{
+    image = QImage(fullpath);
+    if (image.isNull()) {
+        QMessageBox::information(this, tr("Error!"),
+                tr("Cannot load %1.").arg(fullpath));
+    }
+    this->fullpath = fullpath;
+    qDebug() << "Image loaded:" << fullpath;
+}
+
+void TabPage::displayImage()
+{
+    if (image.isNull()) {
+        return;
+    }
+    if (image.height() > image.width() && image.height() > 900) {
+        ui.label->setPixmap(
+                QPixmap::fromImage(image.scaledToHeight(900)));
+    } else if (image.width() > 900) {
+        ui.label->setPixmap(
+                QPixmap::fromImage(image.scaledToWidth(900)));
+    }
+}
+
+/*void TabPage::displayFit()
+{
+    Q_ASSERT(ui.label->pixmap() != nullptr);
+    auto oheight = ui.label->pixmap()->height();
+    auto owidth = ui.label->pixmap()->width();
+    double scale = 1.0;
+    if (oheight > owidth && oheight > 900) {
+        scale = 900.0 / oheight;
+    } else if (owidth > 900) {
+        scale = 900.0 / owidth;
+    }
+    displayScale(scale);
+}   */

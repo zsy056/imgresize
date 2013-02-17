@@ -1,5 +1,6 @@
 # C++ objects and libs
 
+imgresize
 *.slo
 *.lo
 *.o
@@ -18,3 +19,4 @@ moc_*.cpp
 qrc_*.cpp
 Makefile
 *-build-*
+ui_*.h
