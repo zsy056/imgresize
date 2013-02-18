@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
-    <height>290</height>
+    <width>492</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,9 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_5">
+  <layout class="QHBoxLayout" name="horizontalLayout_6">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -45,6 +45,9 @@
          </item>
          <item>
           <widget class="QSpinBox" name="sbLongEdge">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
             <number>65535</number>
            </property>
@@ -74,22 +77,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="cbKeepRatio">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Keep aspect ratio</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Image Size</string>
+          <string>Image size by pixel</string>
          </property>
          <property name="flat">
           <bool>false</bool>
@@ -108,6 +98,9 @@
              <widget class="QSpinBox" name="sbHeight">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="minimum">
+               <number>1</number>
               </property>
               <property name="maximum">
                <number>65535</number>
@@ -137,6 +130,9 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
               <property name="maximum">
                <number>65535</number>
               </property>
@@ -151,9 +147,23 @@
             </item>
            </layout>
           </item>
+          <item>
+           <widget class="QCheckBox" name="cbKeepRatio">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Keep aspect ratio</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
          <zorder></zorder>
          <zorder></zorder>
+         <zorder>cbKeepRatio</zorder>
         </widget>
        </item>
       </layout>
@@ -163,12 +173,19 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Estimate File Size</string>
+          <string>Estimate file size &lt;</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="sbFileSize"/>
+        <widget class="QSpinBox" name="sbFileSize">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_4">
@@ -178,6 +195,76 @@
         </widget>
        </item>
       </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Quality</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="sbQuality">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Output dir</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QRadioButton" name="rbSameDir">
+          <property name="text">
+           <string>Output to same dir as input files</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">buttonGroup_2</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QRadioButton" name="rbSelectDir">
+            <property name="text">
+             <string>Select output dir</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttonGroup_2</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leOutDir"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbChoose">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="cbApplyToAll">
@@ -349,8 +436,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>rbSelectDir</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leOutDir</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>91</x>
+     <y>356</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>357</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbKeepRatio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbFileSize</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>158</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>167</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

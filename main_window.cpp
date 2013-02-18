@@ -13,6 +13,8 @@
 
 const char FORMAT_LIST[] = "Images (*.png *.jpg *.jpeg *.bmp *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.nef *.cr2 *.crw *.raf *.dng *.mos *.kdc *.dcr)";
 
+static const QString LOADDIR_KEY("init-file-choose-dir");
+
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent)
 {
@@ -81,26 +83,33 @@ void MainWindow::resizeDialog()
 
     ResizeDialog dialog(page->getHeight(), page->getWidth(), this);
     connect(&dialog, 
-            SIGNAL(dialogFinished(int, int, int, bool, int, bool)),
-            this, SLOT(resizeOpts(int, int, int, bool, int, bool)));
+            SIGNAL(dialogFinished(int, int, bool, bool, const QString&,
+                    int)),
+            this, SLOT(resizeOpts(int, int, bool, bool, const QString&,
+                    int)));
     dialog.exec();
 }
 
-void MainWindow::resizeOpts(int height, int width, int longest,
-        bool isLongest, int filesize, bool applyToAll)
+void MainWindow::saveImage(int index, int height, int width, bool sameDir,
+        const QString& outdir, int quality) 
+{
+    TabPage* page = 
+            qobject_cast<TabPage*>(ui.tabWidget->widget(index));
+    auto dir = sameDir ? QFileInfo(page->getFullpath()).path() : outdir;
+    auto future = QtConcurrent::run(page, &TabPage::save,
+                height, width, dir, quality);
+}
+
+void MainWindow::resizeOpts(int height, int width, bool applyToAll,
+        bool sameDir, const QString& outdir, int quality)
 {
     if (applyToAll) {
         for (int i=0; i<ui.tabWidget->count(); ++i) {
-            TabPage* page = 
-            qobject_cast<TabPage*>(ui.tabWidget->widget(i)); 
-            auto future = QtConcurrent::run(page, &TabPage::save,
-                height, width, true, longest);
+            saveImage(i, height, width, sameDir, outdir, quality);
         }
     } else {
-        TabPage* page = 
-            qobject_cast<TabPage*>(ui.tabWidget->currentWidget()); 
-        auto future = QtConcurrent::run(page, &TabPage::save,
-                height, width, isLongest, longest);
+        saveImage(ui.tabWidget->currentIndex(), height, width, sameDir,
+                outdir, quality);
     }
 }
 
@@ -186,7 +195,7 @@ void MainWindow::addTabs(const QStringList& pathList)
 void MainWindow::chooseFiles()
 {
     QSettings settings;
-    auto initdir = settings.value("init-file-choose-dir", ".").toString();
+    auto initdir = settings.value(LOADDIR_KEY, ".").toString();
     auto files = QFileDialog::getOpenFileNames(
             this,
             tr("Select one or more files to open"),
@@ -194,6 +203,6 @@ void MainWindow::chooseFiles()
             FORMAT_LIST);
     addTabs(files);
     if (files.size() > 0) {
-        settings.setValue("init-file-choose-dir", files.first());
+        settings.setValue(LOADDIR_KEY, files.first());
     }
 }

@@ -13,9 +13,10 @@ public:
     void loadImage();
     void loadImage(const QString& fullpath);
     bool isLoaded(const QString& fullpath) const;
-    void save(int height, int width, bool setLongest, int longest);
+    void save(int height, int width, const QString& outdir, int quality);
     int getHeight() const;
     int getWidth() const;
+    QString getFullpath() const;
 
 public slots:
     void zoomOut();
@@ -31,10 +32,11 @@ private slots:
 
 private:
     Ui::TabPage ui;
-    double displayScaleFactor;
+    qreal displayScaleFactor;
     QString fullpath;
     QImage image;
     QFutureWatcher<void> loadWatcher;
+    static const QString SAVE_PREFIX;
 
     void doLoadImage(const QString& fullpath);
     void displayScale(double scale);

@@ -18,13 +18,15 @@ private slots:
     void closeTab(int index);
     void displayCurrentTab();
     void resizeDialog();
-    void resizeOpts(int height, int width, int longest, bool isLongest,
-            int fileSize, bool applyToAll);
+    void resizeOpts(int height, int width, bool applyToAll, bool sameDir,
+            const QString& outdir, int quality);
     void zoomIn();
     void zoomOut();
     void setTabActionsEnabled(bool flag);
     void closeCurrentTab();
     void loadErrorHandler(const QString& fullpath);
+    void saveImage(int index, int height, int width, bool sameDir,
+            const QString& outdir, int quality) ;
 
 protected:
     void dropEvent(QDropEvent* event);

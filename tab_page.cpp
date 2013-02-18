@@ -7,6 +7,8 @@
 
 #include "tab_page.h"
 
+const QString TabPage::SAVE_PREFIX(tr("Resized-"));
+
 TabPage::TabPage(const QString& fullpath, QWidget* parent):
     QWidget(parent), displayScaleFactor(1.0), fullpath(fullpath)
 {
@@ -21,6 +23,11 @@ TabPage::TabPage(const QString& fullpath, QWidget* parent):
     connect(&loadWatcher, SIGNAL(finished()), this, SLOT(displayImage()));
     connect(this, SIGNAL(loadFinish()), this, SLOT(displayImage()));
 }         
+
+QString TabPage::getFullpath() const
+{
+    return fullpath;
+}
 
 void TabPage::displayScale(double scale)
 {
@@ -70,8 +77,7 @@ int TabPage::getWidth() const
     return image.width();
 }
 
-void TabPage::save(int height, int width,
-        bool setLongest, int longest)
+void TabPage::save(int height, int width, const QString& outdir, int quality)
 {
     if (image.isNull()) {
         doLoadImage(fullpath);
@@ -81,18 +87,11 @@ void TabPage::save(int height, int width,
         qDebug() << fullpath << "Not saved";
         return;
     }
-    QImage scaledImg;
-    if (setLongest) {
-        scaledImg = image.height() > image.width() ?
-            image.scaledToHeight(longest, Qt::SmoothTransformation) :
-            image.scaledToWidth(longest, Qt::SmoothTransformation);
-    } else {
-        scaledImg = image.scaled(width, height, Qt::IgnoreAspectRatio,
-                Qt::SmoothTransformation);
-    }
-    QDir dir("/tmp");
-    auto path = dir.absoluteFilePath(QFileInfo(fullpath).baseName()+".jpg");
-    scaledImg.save(path, 0, 100);
+    auto scaledImg = image.scaled(width, height,
+            Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    auto path = QDir(outdir).absoluteFilePath(
+            SAVE_PREFIX + QFileInfo(fullpath).baseName()+".jpg");
+    scaledImg.save(path, 0, quality);
     qDebug() << "Save done" << path;
 }
 
