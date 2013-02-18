@@ -36,6 +36,7 @@ private:
     int lastTabIdx;
 
     void addTabs(const QStringList& pathList);
+    void setTabIcon(int index);
 };
 
 #endif

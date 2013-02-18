@@ -2,4 +2,16 @@
   <qresource prefix="image">
     <file>images/loading.gif</file>
   </qresource>
+  <qresource prefix="icon">
+    <file>icons/image.svg</file>
+    <file>icons/about-qt.svg</file>
+    <file>icons/about.svg</file>
+    <file>icons/close.svg</file>
+    <file>icons/quit.svg</file>
+    <file>icons/zoom-in.svg</file>
+    <file>icons/zoom-out.svg</file>
+    <file>icons/resize.svg</file>
+    <file>icons/app.svg</file>
+    <file>icons/open.svg</file>
+  </qresource>
 </RCC>

@@ -5,12 +5,13 @@
 #include <QUrl>
 #include <QtConcurrentRun>
 #include <QMouseEvent>
+#include <QSettings>
 
 #include "main_window.h"
 #include "tab_page.h"
 #include "resize_dialog.h"
 
-const char FORMAT_LIST[] = "Images (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.nef *.cr2 *.crw *.raf *.dng *.mos *.kdc *.dcr)";
+const char FORMAT_LIST[] = "Images (*.png *.jpg *.jpeg *.bmp *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.nef *.cr2 *.crw *.raf *.dng *.mos *.kdc *.dcr)";
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent)
@@ -36,6 +37,12 @@ MainWindow::MainWindow(QWidget* parent):
             this, SLOT(closeTab(int)));
     connect(ui.tabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(displayCurrentTab()));
+}
+
+void MainWindow::setTabIcon(int index)
+{
+    static QIcon icon(":/icon/icons/image.svg");
+    ui.tabWidget->setTabIcon(index, icon);
 }
 
 void MainWindow::closeCurrentTab()
@@ -169,6 +176,7 @@ void MainWindow::addTabs(const QStringList& pathList)
                 QFileInfo(*it).fileName());
         connect(page, SIGNAL(loadError(const QString&)),
                 this, SLOT(loadErrorHandler(const QString&)));
+        setTabIcon(lastTabIdx);
         qDebug() << "Tab added: " << *it;
         ++it;
     }
@@ -177,10 +185,15 @@ void MainWindow::addTabs(const QStringList& pathList)
 
 void MainWindow::chooseFiles()
 {
+    QSettings settings;
+    auto initdir = settings.value("init-file-choose-dir", ".").toString();
     auto files = QFileDialog::getOpenFileNames(
             this,
             tr("Select one or more files to open"),
-            ".",
+            initdir,
             FORMAT_LIST);
     addTabs(files);
+    if (files.size() > 0) {
+        settings.setValue("init-file-choose-dir", files.first());
+    }
 }
