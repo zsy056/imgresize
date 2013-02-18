@@ -140,17 +140,3 @@ void TabPage::displayImage()
         ui.label->setPixmap(QPixmap::fromImage(image));
     }
 }
-
-/*void TabPage::displayFit()
-{
-    Q_ASSERT(ui.label->pixmap() != nullptr);
-    auto oheight = ui.label->pixmap()->height();
-    auto owidth = ui.label->pixmap()->width();
-    double scale = 1.0;
-    if (oheight > owidth && oheight > 900) {
-        scale = 900.0 / oheight;
-    } else if (owidth > 900) {
-        scale = 900.0 / owidth;
-    }
-    displayScale(scale);
-}   */
