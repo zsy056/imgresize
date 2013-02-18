@@ -24,13 +24,19 @@ TabPage::TabPage(const QString& fullpath, QWidget* parent):
 
 void TabPage::displayScale(double scale)
 {
+    if ((displayScaleFactor > 3.0 && scale > 1.0)
+            || (displayScaleFactor < 0.1 && scale < 1.0)) {
+        return;
+    }
     //ui.scrollArea->setWidgetResizable(false);
     Q_ASSERT(ui.label->pixmap() != nullptr);
     displayScaleFactor *= scale;
     auto scaledSize = displayScaleFactor * ui.label->pixmap()->size();
     //ui.scrollArea->resize(scaledSize);
     ui.label->resize(scaledSize);
+    // ensure the alignment of label is correct
     ui.label->setMinimumSize(scaledSize);
+    ui.label->setMaximumSize(scaledSize);
 
     adjustScrollBar(ui.scrollArea->horizontalScrollBar(), scale);
     adjustScrollBar(ui.scrollArea->verticalScrollBar(), scale);
