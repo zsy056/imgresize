@@ -136,6 +136,8 @@ void TabPage::displayImage()
     } else if (image.width() > 900) {
         ui.label->setPixmap(
                 QPixmap::fromImage(image.scaledToWidth(900)));
+    } else {
+        ui.label->setPixmap(QPixmap::fromImage(image));
     }
 }
 

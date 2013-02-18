@@ -6,6 +6,7 @@
 #include <QtConcurrentRun>
 #include <QMouseEvent>
 #include <QSettings>
+#include <QProgressDialog>
 
 #include "main_window.h"
 #include "tab_page.h"
@@ -96,20 +97,32 @@ void MainWindow::saveImage(int index, int height, int width, bool sameDir,
     TabPage* page = 
             qobject_cast<TabPage*>(ui.tabWidget->widget(index));
     auto dir = sameDir ? QFileInfo(page->getFullpath()).path() : outdir;
-    auto future = QtConcurrent::run(page, &TabPage::save,
-                height, width, dir, quality);
+    page->save(height, width, dir, quality);
 }
 
 void MainWindow::resizeOpts(int height, int width, bool applyToAll,
         bool sameDir, const QString& outdir, int quality)
 {
     if (applyToAll) {
-        for (int i=0; i<ui.tabWidget->count(); ++i) {
+        auto count = ui.tabWidget->count();
+        QProgressDialog progress(tr("Resizing..."), tr("Abort"), 0, count,
+                this);
+        progress.setWindowModality(Qt::WindowModal);
+        for (int i=0; i<count; ++i) {
+            progress.setValue(i);
+            if (progress.wasCanceled())
+                break;
             saveImage(i, height, width, sameDir, outdir, quality);
         }
+        progress.setValue(count);
     } else {
+        QProgressDialog progress(tr("Resizing..."), tr("Abort"), 0, 1,
+                this);
+        progress.setWindowModality(Qt::WindowModal);
+
         saveImage(ui.tabWidget->currentIndex(), height, width, sameDir,
                 outdir, quality);
+        progress.setValue(1);
     }
 }
 
