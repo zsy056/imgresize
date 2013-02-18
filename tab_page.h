@@ -24,6 +24,7 @@ public slots:
 
 signals:
     void loadFinish();
+    void loadError(const QString& fullpath);
 
 private slots:
     void displayImage();

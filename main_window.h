@@ -22,6 +22,9 @@ private slots:
             int fileSize, bool applyToAll);
     void zoomIn();
     void zoomOut();
+    void setTabActionsEnabled(bool flag);
+    void closeCurrentTab();
+    void loadErrorHandler(const QString& fullpath);
 
 protected:
     void dropEvent(QDropEvent* event);

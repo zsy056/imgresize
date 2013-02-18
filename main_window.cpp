@@ -10,10 +10,13 @@
 #include "tab_page.h"
 #include "resize_dialog.h"
 
+const char FORMAT_LIST[] = "Images (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *.ppm *.tiff *.xbm *.xpm *.nef *.cr2 *.crw *.raf *.dng *.mos *.kdc *.dcr)";
+
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent)
 {
     ui.setupUi(this);
+    setTabActionsEnabled(false);
 
     connect(ui.actionAbout_Qt, SIGNAL(triggered()),
             this, SLOT(aboutQT()));
@@ -27,10 +30,25 @@ MainWindow::MainWindow(QWidget* parent):
             this, SLOT(zoomIn()));
     connect(ui.actionZoom_Out, SIGNAL(triggered()),
             this, SLOT(zoomOut()));
+    connect(ui.action_Close, SIGNAL(triggered()),
+            this, SLOT(closeCurrentTab()));
     connect(ui.tabWidget, SIGNAL(tabCloseRequested(int)),
             this, SLOT(closeTab(int)));
     connect(ui.tabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(displayCurrentTab()));
+}
+
+void MainWindow::closeCurrentTab()
+{
+    closeTab(ui.tabWidget->currentIndex());
+}
+
+void MainWindow::setTabActionsEnabled(bool flag)
+{
+    ui.actionZoom_In->setEnabled(flag);
+    ui.actionZoom_Out->setEnabled(flag);
+    ui.action_Close->setEnabled(flag);
+    ui.action_Resize->setEnabled(flag);
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent* event)
@@ -108,15 +126,29 @@ void MainWindow::displayCurrentTab()
     TabPage* page = qobject_cast<TabPage*>(ui.tabWidget->currentWidget());
     Q_ASSERT(page != nullptr);
     page->loadImage();
+    setTabActionsEnabled(true);
 }
 
 
 void MainWindow::closeTab(int index)
 {
     auto page = ui.tabWidget->widget(index);
+    Q_ASSERT(page != nullptr);
     ui.tabWidget->removeTab(index);
     delete page;
+    if (ui.tabWidget->count() == 0) {
+        setTabActionsEnabled(false);
+    }
 }
+void MainWindow::loadErrorHandler(const QString& fullpath)
+{
+    QMessageBox::information(this, tr("Error!"),
+            tr("Cannot load %1.").arg(fullpath));
+    TabPage* page = qobject_cast<TabPage*>(sender());
+    auto idx = ui.tabWidget->indexOf(page);
+    closeTab(idx);
+}
+
 
 void MainWindow::aboutQT()
 {
@@ -135,6 +167,8 @@ void MainWindow::addTabs(const QStringList& pathList)
         auto page = new TabPage(*it);
         lastTabIdx = ui.tabWidget->addTab(page,
                 QFileInfo(*it).fileName());
+        connect(page, SIGNAL(loadError(const QString&)),
+                this, SLOT(loadErrorHandler(const QString&)));
         qDebug() << "Tab added: " << *it;
         ++it;
     }
@@ -147,6 +181,6 @@ void MainWindow::chooseFiles()
             this,
             tr("Select one or more files to open"),
             ".",
-            "Images (*.png *.jpg *.jpeg *.nef)");
+            FORMAT_LIST);
     addTabs(files);
 }

@@ -71,6 +71,10 @@ void TabPage::save(int height, int width,
         doLoadImage(fullpath);
         emit loadFinish();
     }
+    if (image.isNull()) {
+        qDebug() << fullpath << "Not saved";
+        return;
+    }
     QImage scaledImg;
     if (setLongest) {
         scaledImg = image.height() > image.width() ?
@@ -108,12 +112,11 @@ void TabPage::loadImage()
 
 void TabPage::doLoadImage(const QString& fullpath)
 {
+    this->fullpath = fullpath;
     image = QImage(fullpath);
     if (image.isNull()) {
-        QMessageBox::information(this, tr("Error!"),
-                tr("Cannot load %1.").arg(fullpath));
+        emit loadError(fullpath);
     }
-    this->fullpath = fullpath;
     qDebug() << "Image loaded:" << fullpath;
 }
 
