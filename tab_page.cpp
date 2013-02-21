@@ -130,13 +130,12 @@ void TabPage::displayImage()
     if (image.isNull()) {
         return;
     }
+    ui.label->setPixmap(QPixmap::fromImage(image));
     if (image.height() > image.width() && image.height() > 900) {
-        ui.label->setPixmap(
-                QPixmap::fromImage(image.scaledToHeight(900)));
+        auto scale = 900.0 / image.height();
+        displayScale(scale);
     } else if (image.width() > 900) {
-        ui.label->setPixmap(
-                QPixmap::fromImage(image.scaledToWidth(900)));
-    } else {
-        ui.label->setPixmap(QPixmap::fromImage(image));
-    }
+        auto scale = 900.0 / image.width();
+        displayScale(scale);
+    }  
 }

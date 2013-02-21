@@ -2,7 +2,11 @@
   <qresource prefix="image">
     <file>images/loading.gif</file>
   </qresource>
+  <qresource prefix="translations">
+    <file>imgresize_zh_CN.qm</file>
+  </qresource>
   <qresource prefix="icon">
+    <file>icons/close-all.svg</file>
     <file>icons/image.svg</file>
     <file>icons/about-qt.svg</file>
     <file>icons/about.svg</file>

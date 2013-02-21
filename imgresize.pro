@@ -16,7 +16,9 @@ SOURCES += drag_move_scroll_area.cpp \
            resize_dialog.cpp \
            tab_page.cpp
 RESOURCES += resources.qrc
-TRANSLATIONS += imgresize_cn.ts
+TRANSLATIONS += imgresize_zh_CN.ts
 
-CONFIG += debug
 QMAKE_CXXFLAGS += -std=c++11
+
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -Ofast

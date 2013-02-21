@@ -27,6 +27,7 @@ private slots:
     void loadErrorHandler(const QString& fullpath);
     void saveImage(int index, int height, int width, bool sameDir,
             const QString& outdir, int quality) ;
+    void closeAllTabs();
 
 protected:
     void dropEvent(QDropEvent* event);

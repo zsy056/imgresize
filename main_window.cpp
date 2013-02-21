@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget* parent):
             this, SLOT(zoomOut()));
     connect(ui.action_Close, SIGNAL(triggered()),
             this, SLOT(closeCurrentTab()));
+    connect(ui.actionClose_All, SIGNAL(triggered()),
+            this, SLOT(closeAllTabs()));
     connect(ui.tabWidget, SIGNAL(tabCloseRequested(int)),
             this, SLOT(closeTab(int)));
     connect(ui.tabWidget, SIGNAL(currentChanged(int)),
@@ -46,6 +48,15 @@ void MainWindow::setTabIcon(int index)
 {
     static QIcon icon(":/icon/icons/image.svg");
     ui.tabWidget->setTabIcon(index, icon);
+}
+
+void MainWindow::closeAllTabs()
+{
+    for (int i=0; i<ui.tabWidget->count(); ++i) {
+        auto page = ui.tabWidget->widget(i);
+        delete page;
+    }
+    ui.tabWidget->clear();
 }
 
 void MainWindow::closeCurrentTab()
