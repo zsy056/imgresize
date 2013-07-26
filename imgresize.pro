@@ -18,6 +18,8 @@ SOURCES += drag_move_scroll_area.cpp \
 RESOURCES += resources.qrc
 TRANSLATIONS += imgresize_zh_CN.ts
 
+LIBS += -lexiv2
+
 QMAKE_CXXFLAGS += -std=c++11
 
 QMAKE_CXXFLAGS_RELEASE -= -O2

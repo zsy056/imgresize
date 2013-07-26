@@ -11,3 +11,5 @@ Estimate the size upper bound of JPEG file as [width * height * 12 bits](http://
 
 Icons from Faenza icon set.
 
+Use exiv2 for exif r/w.
+

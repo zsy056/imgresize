@@ -9,6 +9,25 @@
 
 const QString TabPage::SAVE_PREFIX(tr("Resized-"));
 
+void print_exif(const Exiv2::ExifData exif)
+{
+    Exiv2::ExifData::const_iterator end = exif.end();
+    for (Exiv2::ExifData::const_iterator i=exif.begin(); i!=end; ++i) {
+        const char* tn = i->typeName();
+        std::cout << std::setw(44) << std::setfill(' ') << std::left
+            << i->key() << " "
+            << "0x" << std::setw(4) << std::setfill('0') << std::right
+            << std::hex << i->tag() << " "
+            << std::setw(9) << std::setfill(' ') << std::left
+            << (tn ? tn : "Unknown") << " "
+            << std::dec << std::setw(3)
+            << std::setfill(' ') << std::right
+            << i->count() << "  "
+            << std::dec << i->value()
+            << "\n";
+    }
+}
+
 TabPage::TabPage(const QString& fullpath, QWidget* parent):
     QWidget(parent), displayScaleFactor(1.0), fullpath(fullpath)
 {
@@ -22,7 +41,7 @@ TabPage::TabPage(const QString& fullpath, QWidget* parent):
 
     connect(&loadWatcher, SIGNAL(finished()), this, SLOT(displayImage()));
     connect(this, SIGNAL(loadFinish()), this, SLOT(displayImage()));
-}         
+}
 
 QString TabPage::getFullpath() const
 {
@@ -93,6 +112,13 @@ void TabPage::save(int height, int width, const QString& outdir, int quality)
             SAVE_PREFIX + QFileInfo(fullpath).baseName()+".jpg");
     scaledImg.save(path, 0, quality);
     qDebug() << "Save done" << path;
+    // write exif data
+    Exiv2::Image::AutoPtr exivimg =
+        Exiv2::ImageFactory::open(path.toStdString());
+    if (exivimg.get() != nullptr) {
+        exivimg->setExifData(exif_data);
+        exivimg->writeMetadata();
+    }
 }
 
 bool TabPage::isLoaded(const QString& fullpath) const
@@ -123,6 +149,14 @@ void TabPage::doLoadImage(const QString& fullpath)
         emit loadError(fullpath);
     }
     qDebug() << "Image loaded:" << fullpath;
+    // Read exif data
+    Exiv2::Image::AutoPtr exivimg =
+        Exiv2::ImageFactory::open(fullpath.toStdString());
+    if (exivimg.get() != nullptr) {
+        exivimg->readMetadata();
+        exif_data = exivimg->exifData();
+        print_exif(exif_data);
+    }
 }
 
 void TabPage::displayImage()
@@ -137,5 +171,5 @@ void TabPage::displayImage()
     } else if (image.width() > 900) {
         auto scale = 900.0 / image.width();
         displayScale(scale);
-    }  
+    }
 }

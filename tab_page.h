@@ -3,6 +3,8 @@
 
 #include <QFutureWatcher>
 
+#include <exiv2/exiv2.hpp>
+
 #include "ui_tab_page.h"
 
 class TabPage : public QWidget
@@ -37,6 +39,7 @@ private:
     QImage image;
     QFutureWatcher<void> loadWatcher;
     static const QString SAVE_PREFIX;
+    Exiv2::ExifData exif_data;
 
     void doLoadImage(const QString& fullpath);
     void displayScale(double scale);
