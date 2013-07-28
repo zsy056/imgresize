@@ -114,7 +114,7 @@ void TabPage::save(int height, int width, const QString& outdir, int quality)
     qDebug() << "Save done" << path;
     // write exif data
     Exiv2::Image::AutoPtr exivimg =
-        Exiv2::ImageFactory::open(path.toStdString());
+        Exiv2::ImageFactory::open(path.toLocal8Bit().constData());
     if (exivimg.get() != nullptr) {
         exivimg->setExifData(exif_data);
         exivimg->writeMetadata();
@@ -151,7 +151,7 @@ void TabPage::doLoadImage(const QString& fullpath)
     qDebug() << "Image loaded:" << fullpath;
     // Read exif data
     Exiv2::Image::AutoPtr exivimg =
-        Exiv2::ImageFactory::open(fullpath.toStdString());
+        Exiv2::ImageFactory::open(fullpath.toLocal8Bit().constData());
     if (exivimg.get() != nullptr) {
         exivimg->readMetadata();
         exif_data = exivimg->exifData();
